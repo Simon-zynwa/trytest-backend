@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.example</groupId>
+        <artifactId>trytest</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <!-- 【核心修改】删除了多余的 <groupId>，子模块会自动继承父模块的groupId -->
+    <artifactId>framework</artifactId>
+
+    <!-- properties 已经由父模块管理，这里删除 -->
+
+    <dependencies>
+        <!-- SpringBoot AOP 依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+            <!-- 版本号由父pom管理，这里无需填写 -->
+        </dependency>
+        <!-- 引入 common 模块，以便使用 ActionLog 注解 -->
+        <dependency>
+            <groupId>org.example.common</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>
