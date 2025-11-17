@@ -1,6 +1,7 @@
 package org.example.admin.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.example.admin.pojo.dto.UserMessageUpdateDTO;
 import org.example.admin.pojo.entity.User;
 
 import java.util.List;
@@ -12,4 +13,6 @@ public interface UserMapper {
     void InsertUser(User user);
 
     List<User> selectAllUser();
+
+    void updateUserMessage(UserMessageUpdateDTO userMessageUpdateDTO);
 }

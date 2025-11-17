@@ -1,6 +1,7 @@
 package org.example.admin.service.impl;
 
 import org.example.admin.mapper.UserMapper;
+import org.example.admin.pojo.dto.UserMessageUpdateDTO;
 import org.example.admin.pojo.entity.User;
 import org.example.admin.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> selectAllUser() {
         return userMapper.selectAllUser();
+    }
+
+    @Override
+    public void updateUserMessage(UserMessageUpdateDTO userMessageUpdateDTO) {
+        userMapper.updateUserMessage(userMessageUpdateDTO);
     }
 }

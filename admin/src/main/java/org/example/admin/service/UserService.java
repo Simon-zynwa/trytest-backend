@@ -1,6 +1,7 @@
 package org.example.admin.service;
 
 
+import org.example.admin.pojo.dto.UserMessageUpdateDTO;
 import org.example.admin.pojo.entity.User;
 
 import java.util.List;
@@ -15,4 +16,6 @@ public interface UserService {
     void redisTestAdd(User user);
 
     List<User> selectAllUser();
+
+    void updateUserMessage(UserMessageUpdateDTO userMessageUpdateDTO);
 }

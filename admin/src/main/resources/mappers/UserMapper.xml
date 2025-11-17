@@ -4,6 +4,14 @@
     <insert id="InsertUser">
         insert into user (username, password) values (#{username}, #{password});
     </insert>
+    <update id="updateUserMessage">
+        UPDATE `user`
+        SET
+            `phone` = #{phone},
+            `email` = #{email},
+            `identity_card` = #{identityCard}
+        WHERE `username` = #{username};
+    </update>
 
 
     <select id="SelectByUsername" resultType="org.example.admin.pojo.entity.User">

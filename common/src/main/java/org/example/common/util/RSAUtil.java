@@ -1,7 +1,10 @@
 package org.example.common.util;
 
 import org.example.common.exception.AESException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -12,6 +15,7 @@ import java.util.Map;
 
 /**
  * RSA非对称加密工具类
+ * 支持配置文件注入密钥对，也支持静态方法调用
  * 
  * 📚 核心概念：
  * - 公钥(PublicKey)：用于加密，可以公开
@@ -20,12 +24,62 @@ import java.util.Map;
  * 
  * ⚠️ 注意：RSA加密速度慢，一般只用于加密小数据（如密钥、签名）
  */
+@Configuration
 public class RSAUtil {
     
     private static final String ALGORITHM = "RSA";
     private static final int KEY_SIZE = 2048; // 密钥长度，推荐2048或4096
     
-    private RSAUtil() {}
+    /**
+     * RSA公钥，从配置文件读取
+     */
+    @Value("${rsa.public.key:}")
+    private String publicKey;
+    
+    /**
+     * RSA私钥，从配置文件读取
+     */
+    @Value("${rsa.private.key:}")
+    private String privateKey;
+    
+    /**
+     * 初始化密钥对
+     * 如果配置文件中没有密钥，则自动生成
+     */
+    @PostConstruct
+    public void init() {
+        if ((publicKey == null || publicKey.isEmpty()) || 
+            (privateKey == null || privateKey.isEmpty())) {
+            // 生成RSA密钥对
+            Map<String, String> keyPair = generateKeyPair();
+            publicKey = keyPair.get("publicKey");
+            privateKey = keyPair.get("privateKey");
+            
+            System.out.println("=================================================");
+            System.out.println("⚠️  警告：未配置RSA密钥对，已自动生成");
+            System.out.println("请将以下密钥添加到 application.yml 中：");
+            System.out.println("\nrsa:");
+            System.out.println("  public:");
+            System.out.println("    key: " + publicKey);
+            System.out.println("  private:");
+            System.out.println("    key: " + privateKey);
+            System.out.println("=================================================");
+        }
+    }
+    
+    /**
+     * 获取公钥
+     */
+    public String getPublicKey() {
+        return publicKey;
+    }
+    
+    /**
+     * 获取私钥
+     */
+    public String getPrivateKey() {
+        return privateKey;
+    }
     
     /**
      * 生成RSA密钥对（公钥+私钥）

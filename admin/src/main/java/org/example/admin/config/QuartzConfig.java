@@ -9,7 +9,6 @@ import java.util.Properties;
 
 /**
  * Quartz定时任务配置类
- * 
  * 📚 Quartz核心概念：
  * - Job（任务）：要执行的具体任务逻辑
  * - Trigger（触发器）：定义任务什么时候执行
@@ -20,7 +19,6 @@ public class QuartzConfig {
 
     /**
      * 配置Quartz调度器工厂
-     * 
      * @param dataSource 数据源（可选，用于持久化任务）
      * @return SchedulerFactoryBean
      */
