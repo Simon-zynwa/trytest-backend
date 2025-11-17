@@ -24,6 +24,8 @@
         <module>admin</module>
         <module>common</module>
         <module>testAnother</module>
+        <module>system</module>
+        <module>quartz</module>
     </modules>
 
     <!-- 4. properties 统一管理自定义版本号 -->
@@ -41,15 +43,29 @@
         <dependencies>
             <!-- 统一管理 common 模块的版本 -->
             <dependency>
-                <groupId>org.example.common</groupId>
+                <groupId>org.example</groupId>
                 <artifactId>common</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- 统一管理 framework 模块的版本 (如果您还没加的话) -->
+            <!-- 统一管理 framework 模块的版本 -->
             <dependency>
                 <groupId>org.example</groupId>
                 <artifactId>framework</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 统一管理 system 模块的版本 -->
+            <dependency>
+                <groupId>org.example</groupId>
+                <artifactId>system</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 统一管理 quartz 模块的版本 -->
+            <dependency>
+                <groupId>org.example</groupId>
+                <artifactId>quartz</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- MyBatis -->
@@ -73,23 +89,7 @@
                 <version>${knife4j.version}</version>
             </dependency>
 
-            <!--添加Bouncy Castle 库的依赖 AES加减密-->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>1.70</version>
-            </dependency>
-            <!-- Spring Boot Starter（定时任务功能） -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter</artifactId>
-            </dependency>
 
-            <!-- Redis-->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-data-redis</artifactId>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

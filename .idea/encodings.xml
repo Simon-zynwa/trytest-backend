@@ -5,8 +5,10 @@
     <file url="file://$PROJECT_DIR$/admin/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/framework/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/quartz/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/system/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/testAnother/src/main/java" charset="UTF-8" />
   </component>
 </project>

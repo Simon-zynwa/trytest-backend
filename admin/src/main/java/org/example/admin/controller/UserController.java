@@ -1,29 +1,25 @@
 package org.example.admin.controller;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.example.admin.pojo.dto.UserLoginByUsernameDTO;
-import org.example.admin.pojo.dto.UserMessageUpdateDTO;
-import org.example.admin.pojo.dto.UserRegisterDTO;
+import org.example.pojo.dto.UserLoginByUsernameDTO;
+import org.example.pojo.dto.UserMessageUpdateDTO;
+import org.example.pojo.dto.UserRegisterDTO;
 import org.example.common.model.Response;
 import org.example.common.model.Result;
-import org.example.admin.pojo.entity.User;
-import org.example.admin.service.UserService;
+import org.example.pojo.entity.User;
+import org.example.service.UserService;
 import org.example.common.annotation.ActionLog;
 import org.example.common.annotation.ParameterValidation;
 import org.example.common.util.AESUtil;
-import org.example.common.util.HashUtil;
 import org.example.common.util.RSAUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/user")

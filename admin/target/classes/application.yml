@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/testuser?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: rootroot
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher # 强制使用 Ant 风格路径匹配
+  redis:
+    host: 127.0.0.1  # 你的 Redis 服务器地址
+    port: 6379         # 你的 Redis 端口
+    password:          # 如果有密码，填在这里
+    database: 0        # 使用的数据库索引，默认为 0
+    lettuce:
+      pool:
+        max-active: 8
+        max-wait: -1ms
+        max-idle: 8
+        min-idle: 0
+aes:
+  secret:
+    key: 8rqFZxvJYH8uN2p5mK7wL3jD9vR4tB6nQ1xC5yV8aE0=
+
+rsa:
+  public:
+    key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoic51Bd4F4ZBI+CfvyBpvFUKRf4ue24JwvgR9shfK0rMftyDeWtOYK5HHoComPEF/ZRycIbECYlFohZXuxE7qoB0sYJ2cfesWMsFKCSmVcCIIUsrBLoePECZgzq2XtQw54xvwPmJ0rJrvxW/dB/QkPk86unIBAvTVhdOGd4cl9Og2KvTmEJvQ+bs5Zkb2mcFfujN8xyKcjk12lv/qoLnUGZ4fH9Myb8FFm5dSqu4U2dUIjfpGtQruqur620FvkZ09oQFwwdKIDkN4whJSn6hKJfFPknNlUh/cjyJCi7XwBnsD1Q5rv58MUzh1FZmQuoPA3UcIShnnnIJ+7jLJz4aXQIDAQAB
+  private:
+    key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCiJznUF3gXhkEj4J+/IGm8VQpF/i57bgnC+BH2yF8rSsx+3IN5a05grkcegKiY8QX9lHJwhsQJiUWiFle7ETuqgHSxgnZx96xYywUoJKZVwIghSysEuh48QJmDOrZe1DDnjG/A+YnSsmu/Fb90H9CQ+Tzq6cgEC9NWF04Z3hyX06DYq9OYQm9D5uzlmRvaZwV+6M3zHIpyOTXaW/+qgudQZnh8f0zJvwUWbl1Kq7hTZ1QiN+ka1Cu6q6vrbQW+RnT2hAXDB0ogOQ3jCElKfqEol8U+Sc2VSH9yPIkKLtfAGewPVDmu/nwxTOHUVmZC6g8DdRwhKGeecgn7uMsnPhpdAgMBAAECggEABTLGutLpya9HJVRNKr5qRVxgkO/eI5zaeUKkqMmxq1yhg6ukF19mStkrdIHhZc3MSF3a8VqQrFGXRuP6egfKZuPpWct56ptrDgmsJ6ZNItCiTJbxURx6XaoggcF/GTkqPDIXXxNg5L1NkPmsgpeGgy9KUame/Oo4IzlqCpBBUGiuRyqG+mYu62NQK1mEqXfOyvvWQzB2LT52hEmTpTqp328I8kisKC8mV33QgdHSiXn+BU5T/NYEuSbsjbsblowrtbde4HQFpbmgJcIOIZ1UhopqqXZr/ImMJEfM8ulif/0GpfN7eGf3akOL8et5osxZaB9NZeDpgQLbX35mW5VdIQKBgQC1OGHfD1mrM1qBC3uD2G35W1yxxO4MYLDmnOsRmh3fIwYI011MdqG4Bj3auLAO8fcTQ8RbA42cqlUxR6dOzGzbnK38ZNDSAh5oNXiF0Jeh6HYLvCSKzDtye9HJzxiaJhOYwrYeOo4i10GaTwPly9WMpJ8W2phvZUk82QHrFBGjSQKBgQDlEKfCdvplE5D7y0nSnh+E6hSrlz9DQJv0vQDW0KGTzUA46aLchOmS7NW8ATBguTm6MSSQBT3W7sBHI/8QyauCdR608x8vKYZA3S3P8d152BTn8lsvLEqAIPLSZVO5G9logN+7NaJzJ7ncPSNHh4f+t/EB14WwGW9s9K8YXsCqdQKBgQCKhf7KM0GnzClyWwSfU+E8qsnAWXhdncubfHdzjQsode028dpviH813A+MEYEC65Kh9zsxFxY4mztj4BHT+g98D9gvBiFZZqU3oyftofVGnhsd/UMxlcwbRuqmCNgVfOWd77imgrwDhedvvNaN4bHrQCsbnRzIifPhvz/oIf8ZgQKBgDttzchzK9WLdQMOo/GD2rOWM5StIdml6pBddNlGuZTqHG5nlzxVM3BOB8nGGTIO/D4lP9IpufiIatRKL4PAfsHS9wuFRCLtSAqOF7OqkYZqHEptI2EiwZVqdvVFGqqc4hPt053zdVkhBmRwbDXDoPHh8SJEM0gT4UfIV6Ef/CZ9AoGAGBqyLwI12emTO3NoDJ6OkRAFkJPeiu8XYR/SxTIPgH74ktu3fFXuamEhqAH88bGnfkpuIKpWiNYs7yerJ5weUYLTTVRvcouBZfZoWptJop7f8qczD7O6GPfORJQh1w6kcYh9zsRhDXrqhCeKURs8NDwCbhqCVcrwU2AmnH2sx5U=
+
+mybatis:
+  mapper-locations: classpath:mappers/*.xml  # 若使用XML映射文件，指定路径
+  type-aliases-package: org.example.pojo.entity  # 实体类包路径
+  configuration:
+    map-underscore-to-camel-case: true  # 开启驼峰命名自动映射：identity_card -> identityCard

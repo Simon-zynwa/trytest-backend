@@ -8,7 +8,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="admin" />
+        <module name="quartz" />
         <module name="framework" />
+        <module name="system" />
         <module name="common" />
         <module name="testAnother" />
       </profile>
@@ -19,6 +21,8 @@
       <module name="admin" options="-parameters" />
       <module name="common" options="-parameters" />
       <module name="framework" options="-parameters" />
+      <module name="quartz" options="-parameters" />
+      <module name="system" options="-parameters" />
       <module name="testAnother" options="-parameters" />
     </option>
   </component>
