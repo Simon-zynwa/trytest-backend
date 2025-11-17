@@ -31,3 +31,5 @@ rsa:
 mybatis:
   mapper-locations: classpath:mappers/*.xml  # 若使用XML映射文件，指定路径
   type-aliases-package: org.example.pojo.entity  # 实体类包路径
+  configuration:
+    map-underscore-to-camel-case: true  # 开启驼峰命名自动映射：identity_card -> identityCard

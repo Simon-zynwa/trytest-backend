@@ -110,6 +110,26 @@ public class UserController {
     @ActionLog(value = "查询用户", permission = "user:list") // 假设需要 user:list 权限
     public Result selectAllUser() {
         List<User> list =userService.selectAllUser();
+        //解密操作，因为是list集合，因此要遍历解密
+        for (User user : list) {
+            try {
+                //不为null并且不为空字符串才解密
+                if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+                    String decryptedEmail = AESUtil.decrypt(user.getEmail(), aesUtil.getSecretKey());
+                    user.setEmail(decryptedEmail);
+                }
+                if (user.getPhone() != null && !user.getPhone().isEmpty()) {
+                    String decryptedPhone = AESUtil.decrypt(user.getPhone(), aesUtil.getSecretKey());
+                    user.setPhone(decryptedPhone);
+                }
+                if (user.getIdentityCard() != null && !user.getIdentityCard().isEmpty()) {
+                    String decryptedIdentityCard = AESUtil.decrypt(user.getIdentityCard(), aesUtil.getSecretKey());
+                    user.setIdentityCard(decryptedIdentityCard);
+                }
+            } catch (Exception e) {
+                log.error("用户{}信息解密失败: {}", user.getUsername(), e.getMessage());
+            }
+        }
         log.info("查询所有用户成功");
         return Result.success(list);
     }
@@ -125,6 +145,23 @@ public class UserController {
     @PutMapping("/updateUserMessage")
     @ApiOperation(value = "更新用户信息")
     public Result updateUserMessage(@RequestBody UserMessageUpdateDTO userMessageUpdateDTO) {
+
+        String email = userMessageUpdateDTO.getEmail();
+        String phone = userMessageUpdateDTO.getPhone();
+        String identityCard = userMessageUpdateDTO.getIdentityCard();
+
+        String encryptedEmail = AESUtil.encrypt(email, aesUtil.getSecretKey());
+        userMessageUpdateDTO.setEmail(encryptedEmail);
+        log.info("原始邮箱: {} -> 加密后: {}", email, encryptedEmail);
+
+        String encryptedPhone = AESUtil.encrypt(phone, aesUtil.getSecretKey());
+        userMessageUpdateDTO.setPhone(encryptedPhone);
+        log.info("原始手机号: {} -> 加密后: {}", phone, encryptedPhone);
+
+        String encryptedIdentityCard = AESUtil.encrypt(identityCard, aesUtil.getSecretKey());
+        userMessageUpdateDTO.setIdentityCard(encryptedIdentityCard);
+        log.info("原始身份证: {} -> 加密后: {}", identityCard, encryptedIdentityCard);
+
         userService.updateUserMessage(userMessageUpdateDTO);
         log.info("更新用户信息成功: {}", userMessageUpdateDTO.getUsername());
         return Result.success();

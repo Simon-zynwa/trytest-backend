@@ -17,7 +17,7 @@
     <select id="SelectByUsername" resultType="org.example.admin.pojo.entity.User">
         select username, password from user where username=#{username};
     </select>
-    <select id="selectAllUser" resultType="org.example.admin.pojo.entity.User">
-        select username, password from user;
+    <select id="selectAllUser">
+        select username, phone, email, identity_card from user;
     </select>
 </mapper>
