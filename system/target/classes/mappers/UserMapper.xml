@@ -18,6 +18,10 @@
         select username, password, email, phone, identity_card from user where username=#{username};
     </select>
     
+    <select id="SelectByEmail" resultType="org.example.pojo.entity.User">
+        select username, password, email, phone, identity_card from user where email=#{email};
+    </select>
+    
     <select id="selectAllUser" resultType="org.example.pojo.entity.User">
         select username, password, email, phone, identity_card from user;
     </select>

@@ -18,6 +18,19 @@ spring:
         max-wait: -1ms
         max-idle: 8
         min-idle: 0
+  mail:
+    host: smtp.qq.com
+    port: 587
+    username: 2052529547@qq.com          # 你的QQ邮箱
+    password: wgzzjfejqquwejaf     # QQ邮箱授权码（不是QQ密码！）
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 aes:
   secret:
     key: 8rqFZxvJYH8uN2p5mK7wL3jD9vR4tB6nQ1xC5yV8aE0=

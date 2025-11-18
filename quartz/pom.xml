@@ -24,10 +24,16 @@
             <artifactId>common</artifactId>
         </dependency>
 
-        <!-- 引入 framework 模块（包含QuartzConfig） -->
+        <!-- 引入 framework 模块（包含QuartzConfig、RedisLockUtil） -->
         <dependency>
             <groupId>org.example</groupId>
             <artifactId>framework</artifactId>
+        </dependency>
+
+        <!-- 引入 system 模块（包含UserService、User实体类） -->
+        <dependency>
+            <groupId>org.example</groupId>
+            <artifactId>system</artifactId>
         </dependency>
 
         <!-- Spring Boot Web -->
@@ -40,6 +46,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
+        </dependency>
+
+        <!-- Redis（用于分布式锁和缓存） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
         <!-- Knife4j（用于Controller的API文档） -->

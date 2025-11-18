@@ -1,5 +1,6 @@
 package org.example.framework.aspect;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -38,6 +39,32 @@ public class MultiLevelCacheAspect {
     private RedisTemplate<String, Object> redisTemplate;
     
     private final ExpressionParser parser = new SpelExpressionParser();
+    
+    // 用于深拷贝的ObjectMapper（启用默认类型信息，保留泛型）
+    private final ObjectMapper objectMapper = new ObjectMapper()
+        .activateDefaultTyping(
+            new ObjectMapper().getPolymorphicTypeValidator(),
+            ObjectMapper.DefaultTyping.NON_FINAL
+        );
+    
+    /**
+     * 深拷贝对象，防止缓存污染
+     * 使用JSON序列化/反序列化实现深拷贝
+     * 通过enableDefaultTyping保留类型信息，避免泛型丢失
+     */
+    private Object deepCopy(Object source) {
+        if (source == null) {
+            return null;
+        }
+        try {
+            // 序列化为JSON字符串（包含类型信息），再反序列化为新对象
+            String json = objectMapper.writeValueAsString(source);
+            return objectMapper.readValue(json, Object.class);
+        } catch (Exception e) {
+            log.warn("【深拷贝】深拷贝失败，返回原对象: {}", e.getMessage());
+            return source;  // 如果深拷贝失败，返回原对象
+        }
+    }
 
     // 1. 执行前通知
     @Before("@annotation(org.example.common.annotation.MultiLevelCache)")
@@ -78,7 +105,8 @@ public class MultiLevelCacheAspect {
             Object memoryData = memoryCacheManager.get(cacheKey);
             if (memoryData != null) {
                 log.info("【三重缓存查询】✅ 内存缓存命中，key={}", cacheKey);
-                return memoryData;
+                // 返回深拷贝对象，防止调用方修改缓存中的数据
+                return deepCopy(memoryData);
             }
             log.info("【三重缓存查询】❌ 内存缓存未命中，key={}", cacheKey);
         }
@@ -95,7 +123,8 @@ public class MultiLevelCacheAspect {
                     log.info("【三重缓存查询】📝 数据回写到内存缓存");
                 }
                 
-                return redisData;
+                // 返回深拷贝对象，防止调用方修改缓存中的数据
+                return deepCopy(redisData);
             }
             log.info("【三重缓存查询】❌ Redis缓存未命中，key={}", cacheKey);
         }

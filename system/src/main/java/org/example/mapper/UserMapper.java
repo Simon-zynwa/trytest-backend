@@ -10,6 +10,8 @@ import java.util.List;
 @Mapper
 public interface UserMapper {
     User SelectByUsername(String username);
+    
+    User SelectByEmail(String email);
 
     void InsertUser(User user);
 

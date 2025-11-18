@@ -24,7 +24,8 @@ public class Knife4jConfig {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("org.example.admin.controller"))
+                // 扫描所有org.example包下的Controller（包括admin、quartz等模块）
+                .apis(RequestHandlerSelectors.basePackage("org.example"))
                 .paths(PathSelectors.any())
                 .build();
     }

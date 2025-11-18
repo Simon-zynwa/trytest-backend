@@ -4,10 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.model.Result;
-import org.example.job.DataCleanJob;
-import org.example.job.EmailJob;
-import org.example.job.ReportJob;
-import org.example.job.SimpleJob;
+import org.example.job.*;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +64,41 @@ public class QuartzController {
             return Result.fail("创建任务失败: " + e.getMessage());
         }
     }
+
+    /**
+     * 🎓 示例：创建定时任务 - 查询所有用户并刷新缓存（使用分布式锁）
+     * Cron表达式：0 0/5 * * * ? （每5分钟执行一次）
+     */
+    @PostMapping("/demo/selectAllUsers")
+    @ApiOperation(value = "创建定时任务：查询所有用户并刷新缓存（每5分钟执行）")
+    public Result createSelectAllUsersJob() {
+        try {
+            // 1. 创建JobDetail
+            JobDetail jobDetail = JobBuilder.newJob(SelectAllUsersJob.class)
+                    .withIdentity("selectAllUsersJob", "userGroup")  // 任务名称和分组
+                    .withDescription("定时查询所有用户并刷新Redis缓存（使用分布式锁）")
+                    .build();
+
+            // 2. 创建Trigger（使用Cron表达式：每5分钟执行一次）
+            CronTrigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("selectAllUsersTrigger", "userGroup")
+                    .withDescription("每1分钟执行一次")
+                    .withSchedule(CronScheduleBuilder.cronSchedule("0 0/1 * * * ?"))
+                    .build();
+
+            // 3. 调度任务
+            scheduler.scheduleJob(jobDetail, trigger);
+
+            log.info("✅ 定时查询用户任务创建成功：每1分钟执行一次");
+            return Result.success("任务创建成功，将每1分钟查询所有用户并刷新Redis缓存");
+        } catch (Exception e) {
+            log.error("❌ 创建任务失败", e);
+            return Result.fail("创建任务失败: " + e.getMessage());
+        }
+    }
+
+
+
 
     /**
      * 🎓 示例2：创建带参数的定时任务
@@ -323,6 +355,8 @@ public class QuartzController {
                 return ReportJob.class;
             case "EmailJob":
                 return EmailJob.class;
+            case "SelectAllUsersJob":
+                return SelectAllUsersJob.class;
             default:
                 return null;
         }

@@ -1,5 +1,7 @@
 package org.example.framework.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -17,6 +19,19 @@ import java.util.Properties;
 @Configuration
 public class QuartzConfig {
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    /**
+     * 配置自定义JobFactory，让Job支持Spring依赖注入
+     */
+    @Bean
+    public AutowiringSpringBeanJobFactory jobFactory() {
+        AutowiringSpringBeanJobFactory jobFactory = new AutowiringSpringBeanJobFactory();
+        jobFactory.setApplicationContext(applicationContext);
+        return jobFactory;
+    }
+
     /**
      * 配置Quartz调度器工厂
      * @param dataSource 数据源（可选，用于持久化任务）
@@ -25,6 +40,9 @@ public class QuartzConfig {
     @Bean
     public SchedulerFactoryBean schedulerFactoryBean(DataSource dataSource) {
         SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        
+        // ⚠️ 重要：设置自定义JobFactory，让Job支持@Autowired依赖注入
+        factory.setJobFactory(jobFactory());
         
         // 设置数据源（如果需要持久化任务到数据库）
         // factory.setDataSource(dataSource);

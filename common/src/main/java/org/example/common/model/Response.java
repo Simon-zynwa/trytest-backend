@@ -21,7 +21,11 @@ public enum Response {
     ERROR_USER_NOT_EXIST(1002, "用户不存在"),
     ERROR_PASSWORD(1003, "密码错误"),
     SUCCESS_REGISTER(1004, "注册成功"),
-    USER_HAS_EXISTED(1005, "用户已存在");
+    USER_HAS_EXISTED(1005, "用户已存在"),
+    SUCCESS_SEND_EMAIL_CODE(1006, "验证码已发送到您的邮箱"),
+    ERROR_SEND_EMAIL_CODE(1007, "验证码发送失败，请稍后重试"),
+    ERROR_VERIFICATION_CODE(1008, "验证码错误或已过期"),
+    ERROR_EMAIL_NOT_REGISTERED(1009, "该邮箱未注册");
 
 
     private final int code;

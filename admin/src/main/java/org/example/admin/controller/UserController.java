@@ -3,6 +3,8 @@ package org.example.admin.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pojo.dto.SendEmailCodeDTO;
+import org.example.pojo.dto.UserLoginByEmailDTO;
 import org.example.pojo.dto.UserLoginByUsernameDTO;
 import org.example.pojo.dto.UserMessageUpdateDTO;
 import org.example.pojo.dto.UserRegisterDTO;
@@ -111,13 +113,16 @@ public class UserController {
 
     @GetMapping("/selectAllUser")
     @ApiOperation(value="查询所有用户")
-    @ActionLog(value = "查询用户", permission = "user:list") // 假设需要 user:list 权限
     public Result selectAllUser() {
         List<User> list =userService.selectAllUser();
         //解密操作，因为是list集合，因此要遍历解密
         for (User user : list) {
             try {
                 //不为null并且不为空字符串才解密
+                if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                    String decryptedPassword = AESUtil.decrypt(user.getPassword(), aesUtil.getSecretKey());
+                    user.setPassword(decryptedPassword);
+                }
                 if (user.getEmail() != null && !user.getEmail().isEmpty()) {
                     String decryptedEmail = AESUtil.decrypt(user.getEmail(), aesUtil.getSecretKey());
                     user.setEmail(decryptedEmail);
@@ -204,10 +209,19 @@ public class UserController {
         }
     }
 
+    @PostMapping("/sendEmailCode")
+    @ApiOperation(value = "发送邮箱验证码")
+    @ParameterValidation
+    public Result sendEmailCode(@Validated @RequestBody SendEmailCodeDTO sendEmailCodeDTO) {
+        log.info("开始发送邮箱验证码，邮箱：{}", sendEmailCodeDTO.getEmail());
+        return userService.sendEmailCode(sendEmailCodeDTO);
+    }
 
-
-    
-
-
-
+    @PostMapping("/loginByEmail")
+    @ApiOperation(value = "邮箱验证码登录")
+    @ParameterValidation
+    public Result loginByEmail(@Validated @RequestBody UserLoginByEmailDTO userLoginByEmailDTO) {
+        log.info("邮箱验证码登录请求，邮箱：{}", userLoginByEmailDTO.getEmail());
+        return userService.loginByEmailCode(userLoginByEmailDTO);
+    }
 }
