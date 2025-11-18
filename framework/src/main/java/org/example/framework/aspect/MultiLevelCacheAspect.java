@@ -104,51 +104,51 @@ public class MultiLevelCacheAspect {
         if (cacheAnnotation.useMemory()) {
             Object memoryData = memoryCacheManager.get(cacheKey);
             if (memoryData != null) {
-                log.info("【三重缓存查询】✅ 内存缓存命中，key={}", cacheKey);
+                log.info("【三重缓存查询】内存缓存命中，key={}", cacheKey);
                 // 返回深拷贝对象，防止调用方修改缓存中的数据
                 return deepCopy(memoryData);
             }
-            log.info("【三重缓存查询】❌ 内存缓存未命中，key={}", cacheKey);
+            log.info("【三重缓存查询】内存缓存未命中，key={}", cacheKey);
         }
         
         // ==================== 第二层：Redis缓存 ====================
         if (cacheAnnotation.useRedis()) {
             Object redisData = redisTemplate.opsForValue().get(cacheKey);
             if (redisData != null) {
-                log.info("【三重缓存查询】✅ Redis缓存命中，key={}", cacheKey);
+                log.info("【三重缓存查询】Redis缓存命中，key={}", cacheKey);
                 
                 // 回写到内存缓存
                 if (cacheAnnotation.useMemory()) {
                     memoryCacheManager.put(cacheKey, redisData, expireTime);
-                    log.info("【三重缓存查询】📝 数据回写到内存缓存");
+                    log.info("【三重缓存查询】数据回写到内存缓存");
                 }
                 
                 // 返回深拷贝对象，防止调用方修改缓存中的数据
                 return deepCopy(redisData);
             }
-            log.info("【三重缓存查询】❌ Redis缓存未命中，key={}", cacheKey);
+            log.info("【三重缓存查询】Redis缓存未命中，key={}", cacheKey);
         }
         
         // ==================== 第三层：MySQL数据库 ====================
-        log.info("【三重缓存查询】🔍 查询MySQL数据库...");
+        log.info("【三重缓存查询】查询MySQL数据库...");
         Object dbData = pjp.proceed();
         
         if (dbData == null) {
-            log.warn("【三重缓存查询】⚠️ MySQL查询结果为null，key={}", cacheKey);
+            log.warn("【三重缓存查询】MySQL查询结果为null，key={}", cacheKey);
             return null;
         }
         
-        log.info("【三重缓存查询】✅ MySQL查询成功，key={}", cacheKey);
+        log.info("【三重缓存查询】MySQL查询成功，key={}", cacheKey);
         
         // 数据回写到Redis和内存缓存
         if (cacheAnnotation.useRedis()) {
             redisTemplate.opsForValue().set(cacheKey, dbData, expireTime, TimeUnit.SECONDS);
-            log.info("【三重缓存查询】📝 数据回写到Redis缓存，过期时间={}秒", expireTime);
+            log.info("【三重缓存查询】数据回写到Redis缓存，过期时间={}秒", expireTime);
         }
         
         if (cacheAnnotation.useMemory()) {
             memoryCacheManager.put(cacheKey, dbData, expireTime);
-            log.info("【三重缓存查询】📝 数据回写到内存缓存，过期时间={}秒", expireTime);
+            log.info("【三重缓存查询】数据回写到内存缓存，过期时间={}秒", expireTime);
         }
         
         return dbData;
