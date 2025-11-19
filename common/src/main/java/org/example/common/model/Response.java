@@ -25,7 +25,8 @@ public enum Response {
     SUCCESS_SEND_EMAIL_CODE(1006, "验证码已发送到您的邮箱"),
     ERROR_SEND_EMAIL_CODE(1007, "验证码发送失败，请稍后重试"),
     ERROR_VERIFICATION_CODE(1008, "验证码错误或已过期"),
-    ERROR_EMAIL_NOT_REGISTERED(1009, "该邮箱未注册");
+    ERROR_EMAIL_NOT_REGISTERED(1009, "该邮箱未注册"),
+    ERROR_PHONE_NOT_REGISTERED(1010,"该手机号未注册");
 
 
     private final int code;

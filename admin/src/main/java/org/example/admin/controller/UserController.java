@@ -2,17 +2,13 @@ package org.example.admin.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
-import org.example.pojo.dto.SendEmailCodeDTO;
-import org.example.pojo.dto.UserLoginByEmailDTO;
-import org.example.pojo.dto.UserLoginByUsernameDTO;
-import org.example.pojo.dto.UserMessageUpdateDTO;
-import org.example.pojo.dto.UserRegisterDTO;
+import org.example.pojo.dto.*;
 import org.example.common.model.Response;
 import org.example.common.model.Result;
 import org.example.pojo.entity.User;
 import org.example.service.UserService;
-import org.example.common.annotation.ActionLog;
 import org.example.common.annotation.ParameterValidation;
 import org.example.common.util.AESUtil;
 import org.example.common.util.RSAUtil;
@@ -20,8 +16,10 @@ import org.example.framework.util.RedisLockUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -115,30 +113,6 @@ public class UserController {
     @ApiOperation(value="查询所有用户")
     public Result selectAllUser() {
         List<User> list =userService.selectAllUser();
-        //解密操作，因为是list集合，因此要遍历解密
-        for (User user : list) {
-            try {
-                //不为null并且不为空字符串才解密
-                if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                    String decryptedPassword = AESUtil.decrypt(user.getPassword(), aesUtil.getSecretKey());
-                    user.setPassword(decryptedPassword);
-                }
-                if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-                    String decryptedEmail = AESUtil.decrypt(user.getEmail(), aesUtil.getSecretKey());
-                    user.setEmail(decryptedEmail);
-                }
-                if (user.getPhone() != null && !user.getPhone().isEmpty()) {
-                    String decryptedPhone = AESUtil.decrypt(user.getPhone(), aesUtil.getSecretKey());
-                    user.setPhone(decryptedPhone);
-                }
-                if (user.getIdentityCard() != null && !user.getIdentityCard().isEmpty()) {
-                    String decryptedIdentityCard = AESUtil.decrypt(user.getIdentityCard(), aesUtil.getSecretKey());
-                    user.setIdentityCard(decryptedIdentityCard);
-                }
-            } catch (Exception e) {
-                log.error("用户{}信息解密失败: {}", user.getUsername(), e.getMessage());
-            }
-        }
         log.info("查询所有用户成功");
         return Result.success(list);
     }
@@ -172,22 +146,6 @@ public class UserController {
         try {
             // 获取锁成功，开始更新用户信息
             log.info("【分布式锁】获取锁成功，开始更新用户{}的信息", username);
-            
-            String email = userMessageUpdateDTO.getEmail();
-            String phone = userMessageUpdateDTO.getPhone();
-            String identityCard = userMessageUpdateDTO.getIdentityCard();
-
-            String encryptedEmail = AESUtil.encrypt(email, aesUtil.getSecretKey());
-            userMessageUpdateDTO.setEmail(encryptedEmail);
-            log.info("原始邮箱: {} -> 加密后: {}", email, encryptedEmail);
-
-            String encryptedPhone = AESUtil.encrypt(phone, aesUtil.getSecretKey());
-            userMessageUpdateDTO.setPhone(encryptedPhone);
-            log.info("原始手机号: {} -> 加密后: {}", phone, encryptedPhone);
-
-            String encryptedIdentityCard = AESUtil.encrypt(identityCard, aesUtil.getSecretKey());
-            userMessageUpdateDTO.setIdentityCard(encryptedIdentityCard);
-            log.info("原始身份证: {} -> 加密后: {}", identityCard, encryptedIdentityCard);
 
             // 1. 更新数据库
             userService.updateUserMessage(userMessageUpdateDTO);
@@ -224,4 +182,33 @@ public class UserController {
         log.info("邮箱验证码登录请求，邮箱：{}", userLoginByEmailDTO.getEmail());
         return userService.loginByEmailCode(userLoginByEmailDTO);
     }
+
+    @PostMapping("/loginByPhone")
+    @ApiOperation(value = "手机号密码登录")
+    @ParameterValidation
+    public Result loginByPhone(@Validated @RequestBody UserLoginByPhoneDTO userLoginByPhoneDTO){
+        String phone = userLoginByPhoneDTO.getPhone();
+        log.info("手机密码登录请求：手机号：{}",phone);
+        User user = userService.SelectByPhone(phone);
+        if (user == null){
+            return Result.fail(Response.ERROR_PHONE_NOT_REGISTERED);
+        } else if (AESUtil.decrypt(user.getPassword(), aesUtil.getSecretKey()).equals(userLoginByPhoneDTO.getPassword())) {
+            return Result.success(Response.SUCCESS_LOGIN,user);
+        }else {
+            return Result.fail(Response.ERROR_PASSWORD);
+        }
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value = "批量导入用户数据（Excel）")
+    public Result importUser(@RequestPart @RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            log.warn("导入失败：上传的Excel文件为空");
+            return Result.fail("请上传有效的Excel文件");
+        }
+        log.info("开始批量导入用户数据，文件名：{}，文件大小：{}字节", file.getOriginalFilename(), file.getSize());
+        return userService.importUserByExcel(file);
+    }
+
+
 }

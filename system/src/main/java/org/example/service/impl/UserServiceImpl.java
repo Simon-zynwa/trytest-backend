@@ -1,5 +1,6 @@
 package org.example.service.impl;
 
+import com.alibaba.excel.EasyExcel;
 import lombok.extern.slf4j.Slf4j;
 import org.example.common.annotation.MultiLevelCache;
 import org.example.common.model.Response;
@@ -15,8 +16,11 @@ import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -70,30 +74,13 @@ public class UserServiceImpl implements UserService {
     public Result sendEmailCode(SendEmailCodeDTO sendEmailCodeDTO) {
         String email = sendEmailCodeDTO.getEmail();
 
-        //全表扫描后，再进行字段email的解密，匹配上了再解密其他的数据，然后返回
-        List<User> allUsers = userMapper.selectAllUser();
-
-        // 检查邮箱是否已注册
-        User matchedUser = null;// 用于存储匹配的用户
-        for (User user : allUsers) {
-            // 解密数据库中的email密文
-            String decryptedEmail = AESUtil.decrypt(user.getEmail(), aesUtil.getSecretKey());
-            // 比对解密后的明文与用户输入的email
-            if (email.equals(decryptedEmail)) {
-                // 找到匹配用户，解密其他字段
-                user.setEmail(decryptedEmail);
-                user.setPhone(AESUtil.decrypt(user.getPhone(), aesUtil.getSecretKey()));
-                user.setIdentityCard(AESUtil.decrypt(user.getIdentityCard(), aesUtil.getSecretKey()));
-                matchedUser = user;
-                break; // 找到后终止遍历，无需继续检查
-            }
-        }
-        // 遍历完所有用户后再判断
-        if (matchedUser == null) {
+        //检测邮箱有无注册
+        User user = userMapper.SelectByEmail(email);
+        if (user == null){
             log.warn("邮箱未注册：{}", email);
             return Result.fail(Response.ERROR_EMAIL_NOT_REGISTERED);
         }
-        
+
         // 发送验证码
         boolean success = emailService.sendVerificationCode(email);
         if (success) {
@@ -110,26 +97,9 @@ public class UserServiceImpl implements UserService {
         String email = userLoginByEmailDTO.getEmail();
         String code = userLoginByEmailDTO.getCode();
 
-        //全表扫描后，再进行字段email的解密，匹配上了再解密其他的数据，然后返回
-        List<User> allUsers = userMapper.selectAllUser();
-
-        // 检查邮箱是否已注册
-        User matchedUser = null;// 用于存储匹配的用户
-        for (User user : allUsers) {
-            // 解密数据库中的email密文
-            String decryptedEmail = AESUtil.decrypt(user.getEmail(), aesUtil.getSecretKey());
-            // 比对解密后的明文与用户输入的email
-            if (email.equals(decryptedEmail)) {
-                // 找到匹配用户，解密其他字段
-                user.setEmail(decryptedEmail);
-                user.setPhone(AESUtil.decrypt(user.getPhone(), aesUtil.getSecretKey()));
-                user.setIdentityCard(AESUtil.decrypt(user.getIdentityCard(), aesUtil.getSecretKey()));
-                matchedUser = user;
-                break; // 找到后终止遍历，无需继续检查
-            }
-        }
-        // 遍历完所有用户后再判断
-        if (matchedUser == null) {
+        //检测邮箱有无注册
+        User user = userMapper.SelectByEmail(email);
+        if (user == null){
             log.warn("邮箱未注册：{}", email);
             return Result.fail(Response.ERROR_EMAIL_NOT_REGISTERED);
         }
@@ -138,10 +108,55 @@ public class UserServiceImpl implements UserService {
         boolean verified = emailService.verifyCode(email, code);
         if (verified) {
             log.info("用户邮箱验证码登录成功：{}", email);
-            return Result.success(Response.SUCCESS_LOGIN, matchedUser);
+            return Result.success(Response.SUCCESS_LOGIN, user);
         } else {
             log.warn("验证码错误或已过期，邮箱：{}", email);
             return Result.fail(Response.ERROR_VERIFICATION_CODE);
+        }
+    }
+
+    @Override
+    public User SelectByPhone(String phone) {
+        return userMapper.SelectByPhone(phone);
+    }
+
+    @Override
+    public Result importUserByExcel(MultipartFile file) {
+        try {
+            // 1. 解析Excel为用户列表
+            List<User> userList = EasyExcel.read(file.getInputStream())
+                    .head(User.class)
+                    .sheet()
+                    .doReadSync();
+
+            // 2. 数据校验（示例：检查用户名是否重复）
+            List<String> existUsernames = userMapper.selectUsernames(userList.stream()
+                    .map(User::getUsername)
+                    .collect(Collectors.toList()));
+            if (!existUsernames.isEmpty()) {
+                return Result.fail("以下用户名已存在：" + String.join(",", existUsernames));
+            }
+
+            // 3. 密码加密（与注册逻辑一致）
+            userList.forEach(user -> {
+                try {
+                    user.setPassword(AESUtil.encrypt(user.getPassword(), aesUtil.getSecretKey()));
+                } catch (Exception e) {
+                    throw new RuntimeException("密码加密失败：" + user.getUsername());
+                }
+            });
+
+            // 4. 批量入库
+            int successCount = userMapper.batchInsert(userList);
+            log.info("Excel导入完成，总条数：{}，成功入库：{}", userList.size(), successCount);
+            return Result.success("导入成功，共" + successCount + "条数据");
+
+        } catch (IOException e) {
+            log.error("Excel文件解析失败", e);
+            return Result.fail("文件解析失败，请检查文件格式");
+        } catch (RuntimeException e) {
+            log.error("导入处理失败", e);
+            return Result.fail(e.getMessage());
         }
     }
 }

@@ -4,7 +4,14 @@
     <insert id="InsertUser">
         insert into user (username, password) values (#{username}, #{password});
     </insert>
-    
+    <insert id="batchInsert">
+        INSERT INTO user (username, password, phone, email, identity_card)
+        VALUES
+        <foreach collection="list" item="user" separator=",">
+            (#{user.username}, #{user.password}, #{user.phone}, #{user.email}, #{user.identityCard})
+        </foreach>
+    </insert>
+
     <update id="updateUserMessage">
         UPDATE `user`
         SET
@@ -23,6 +30,17 @@
     </select>
     
     <select id="selectAllUser" resultType="org.example.pojo.entity.User">
-        select username, password, email, phone, identity_card from user;
+        select username, email, phone, identity_card from user;
+    </select>
+    <select id="SelectByPhone" resultType="org.example.pojo.entity.User">
+        select username,password, email, phone, identity_card from user where phone=#{phone};
+    </select>
+    <select id="selectUsernames" resultType="java.lang.String">
+        SELECT username
+        FROM user  <!-- 假设数据库表名为user，根据实际表名调整 -->
+        WHERE username IN
+        <foreach collection="list" item="username" open="(" separator="," close=")">
+            #{username}  <!-- 遍历传入的用户名列表，拼接IN条件 -->
+        </foreach>
     </select>
 </mapper>

@@ -5,10 +5,12 @@ import org.example.pojo.dto.SendEmailCodeDTO;
 import org.example.pojo.dto.UserLoginByEmailDTO;
 import org.example.pojo.dto.UserMessageUpdateDTO;
 import org.example.pojo.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface UserService {
+
 
     User SelectByUsername(String username);
     
@@ -25,4 +27,13 @@ public interface UserService {
     Result sendEmailCode(SendEmailCodeDTO sendEmailCodeDTO);
     
     Result loginByEmailCode(UserLoginByEmailDTO userLoginByEmailDTO);
+
+    User SelectByPhone(String phone);
+
+    /**
+     * 导入Excel表格初始化用户数据
+     * @param file Excel文件
+     * @return 导入结果
+     */
+    Result importUserByExcel(MultipartFile file);
 }
