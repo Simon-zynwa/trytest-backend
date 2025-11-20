@@ -1,9 +1,7 @@
 package org.example.service;
 
 import org.example.common.model.Result;
-import org.example.pojo.dto.SendEmailCodeDTO;
-import org.example.pojo.dto.UserLoginByEmailDTO;
-import org.example.pojo.dto.UserMessageUpdateDTO;
+import org.example.pojo.dto.*;
 import org.example.pojo.entity.User;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,4 +34,18 @@ public interface UserService {
      * @return 导入结果
      */
     Result importUserByExcel(MultipartFile file);
+
+    /**
+     * 发送手机验证码（模拟）
+     * @param sendSmsCodeDTO
+     * @return
+     */
+    Result sendSmsCode(SendSmsCodeDTO sendSmsCodeDTO);
+
+    /**
+     * 手机号验证码登录接口
+     * @param userLoginByPhoneCodeDTO
+     * @return
+     */
+    Result loginByPhoneCode(UserLoginByPhoneCodeDTO userLoginByPhoneCodeDTO);
 }

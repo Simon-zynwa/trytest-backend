@@ -7,10 +7,9 @@ import org.example.common.model.Response;
 import org.example.common.model.Result;
 import org.example.common.util.AESUtil;
 import org.example.framework.service.EmailService;
+import org.example.framework.service.SmsService;
 import org.example.mapper.UserMapper;
-import org.example.pojo.dto.SendEmailCodeDTO;
-import org.example.pojo.dto.UserLoginByEmailDTO;
-import org.example.pojo.dto.UserMessageUpdateDTO;
+import org.example.pojo.dto.*;
 import org.example.pojo.entity.User;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +33,9 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private SmsService smsService;
 
     @Autowired
     private AESUtil aesUtil;
@@ -157,6 +159,53 @@ public class UserServiceImpl implements UserService {
         } catch (RuntimeException e) {
             log.error("导入处理失败", e);
             return Result.fail(e.getMessage());
+        }
+    }
+
+    // 实现发送短信验证码方法
+    @Override
+    public Result sendSmsCode(SendSmsCodeDTO sendSmsCodeDTO) {
+        String phone = sendSmsCodeDTO.getPhone();
+
+        // 检测手机号有无注册
+        User user = userMapper.SelectByPhone(phone);
+        if (user == null) {
+            log.warn("手机号未注册：{}", phone);
+            return Result.fail(Response.ERROR_PHONE_NOT_REGISTERED);
+        }
+
+        // 发送验证码（模拟）
+        boolean success = smsService.sendVerificationCode(phone);
+        if (success) {
+            log.info("短信验证码发送成功：{}", phone);
+            return Result.success("验证码已发送到您的手机");
+        } else {
+            log.error("短信验证码发送失败：{}", phone);
+            return Result.fail("验证码发送失败，请稍后重试");
+        }
+    }
+
+    // 实现手机验证码登录方法
+    @Override
+    public Result loginByPhoneCode(UserLoginByPhoneCodeDTO userLoginByPhoneCodeDTO) {
+        String phone = userLoginByPhoneCodeDTO.getPhone();
+        String code = userLoginByPhoneCodeDTO.getCode();
+
+        // 检测手机号有无注册
+        User user = userMapper.SelectByPhone(phone);
+        if (user == null) {
+            log.warn("手机号未注册：{}", phone);
+            return Result.fail(Response.ERROR_PHONE_NOT_REGISTERED);
+        }
+
+        // 验证验证码
+        boolean verified = smsService.verifyCode(phone, code);
+        if (verified) {
+            log.info("用户手机验证码登录成功：{}", phone);
+            return Result.success(Response.SUCCESS_LOGIN, user);
+        } else {
+            log.warn("验证码错误或已过期，手机号：{}", phone);
+            return Result.fail(Response.ERROR_VERIFICATION_CODE);
         }
     }
 }

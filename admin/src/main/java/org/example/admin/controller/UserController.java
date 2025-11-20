@@ -210,5 +210,21 @@ public class UserController {
         return userService.importUserByExcel(file);
     }
 
+    @PostMapping("/sendSmsCode")
+    @ApiOperation(value = "发送短信验证码")
+    @ParameterValidation
+    public Result sendSmsCode(@Validated @RequestBody SendSmsCodeDTO sendSmsCodeDTO) {
+        log.info("开始发送短信验证码，手机号：{}", sendSmsCodeDTO.getPhone());
+        return userService.sendSmsCode(sendSmsCodeDTO);
+    }
+
+    @PostMapping("/loginByPhoneCode")
+    @ApiOperation(value = "手机验证码登录")
+    @ParameterValidation
+    public Result loginByPhoneCode(@Validated @RequestBody UserLoginByPhoneCodeDTO userLoginByPhoneCodeDTO) {
+        log.info("手机验证码登录请求，手机号：{}", userLoginByPhoneCodeDTO.getPhone());
+        return userService.loginByPhoneCode(userLoginByPhoneCodeDTO);
+    }
+
 
 }
